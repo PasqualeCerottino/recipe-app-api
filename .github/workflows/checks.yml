@@ -22,4 +22,4 @@ jobs:
         run: docker-compose run --rm app sh -c "python manage.py test" #Comando che viene utilizzato per eseguire il test sul nostro progetto
         #Il comando scritto mi avvia il test che abboiamo designato
       - name: Lint
-        run: docker-compose run --rm app sh -c "flake8"
+        run: docker-compose run --rm app sh -c "flake8"       
