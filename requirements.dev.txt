@@ -1,4 +1,4 @@
 #Questo nuovo file vine creato perche stiamo andando ad aggiungere un passaggio personalizzato alla nostra build
 #Questi requisiti saranno installati solo se creremo un "image" sul nostro server locale
 
-flake8>3.9.2,<3.10 
+flake8
