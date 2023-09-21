@@ -1,0 +1,25 @@
+#Questo è il file di configurazione per la GitHub action
+
+--- #I 3 trattini mi indicano l'inizio di un yamel file
+name: Checks #Nome che appare nella GitHub action
+
+on: [push] #Trigger
+
+#Definisco il nuovo lavoro
+jobs:
+  test-lint: #Il suo nome è test-lint
+    name: Test and Lint #Nome che mi appare sull'intefaccia
+    runs-on: ubuntu-20.04 #Di base mi indica il sistema operativo su cui faccio girare l'Action
+    steps: 
+      - name: Login to Docker Hub #Il nome che abbiamo dato a questo step che vedo sull'interfaccia
+        uses: docker/login-action@v1 #è un azione pre-impostata che proviende dalla repository di GitHub
+        with: #Inserisco tutti i parametri che mi interessano
+          username: ${{ secrets.DOCKERHUB_USER }}
+          password: ${{ secrets.DOCKERHUB_TOKEN }}
+      - name: Checkout #Secondo step
+        uses: actions/checkout@v2 
+      - name: Test
+        run: docker-compose run --rm app sh -c "python manage.py test" #Comando che viene utilizzato per eseguire il test sul nostro progetto
+        #Il comando scritto mi avvia il test che abboiamo designato
+      - name: Lint
+        run: docker-compose run --rm app sh -c "flake8"
