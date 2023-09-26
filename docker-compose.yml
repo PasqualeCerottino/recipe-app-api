@@ -4,24 +4,51 @@ version: "3.9" #Versione della sintassi del Docker compose che stiamo andando ad
 
 #Servis Block: Ogni Docker compose generalmente è composto da 1 o più block service, 
 #che variano in base a ciò di cui ha bisogno il nostro applicativo
-services: 
-  app: #Specifichiamo il nome del nostro servizio, in questo caso "app"
+services:
+  app:
+    #Specifichiamo il nome del nostro servizio, in questo caso "app"
 
     build:
-      context: . #Build context mi dice in quale directory voglio montare il mio Docker
-                #In questo caso essendo vuota sto dicendo "Montalo nella directory corrente"
+      context: .
+        #Build context mi dice in quale directory voglio montare il mio Docker
+        #In questo caso essendo vuota sto dicendo "Montalo nella directory corrente"
 
       args:
         - DEV=true #Nel momento in cui andiamo a buildare il il main block, instanziamo anche una "variabile"? che impostiamo su True
 
-    ports: #Ports mi specifica il mapping della porta, mi dice come "Accedo al network"
-      - "8000:8000" #Il primo 8000 mi dice a quale porta locale mi sto riferendo, il secondo 8000 fa riferimenro 
-                    #alla porta del nostro Docker container
+    ports:
+      #Ports mi specifica il mapping della porta, mi dice come "Accedo al network"
+      - "8000:8000"
+        #Il primo 8000 mi dice a quale porta locale mi sto riferendo, il secondo 8000 fa riferimenro 
+        #alla porta del nostro Docker container
 
-    volumes: #Mi specifica in che modo deve avvenire il mapping, in particolar modo. 
-             # IL primo /app mi dice quale cartella del mio progetto deve essere connessa alla seconda
-             #che in questo caso è sempre /app che però fa riferimento al docker container
+    volumes:
+      #Mi specifica in che modo deve avvenire il mapping, in particolar modo. 
+      # IL primo /app mi dice quale cartella del mio progetto deve essere connessa alla seconda
+      #che in questo caso è sempre /app che però fa riferimento al docker container
       - ./app:/app
 
     command: > #Comando che viene utilizzato quando viene utilizzato il block service
-      sh -c "python manage.py runserver 0.0.0.0:8000"
+      sh -c "python manage.py wait_for_db &&
+             python manage.py migrate &&
+             python manage.py runserver 0.0.0.0:8000"
+    environment:
+      #Specifica alla mia app come connettersi al Db
+      - DB_HOST=db
+      - DB_NAME=devdb
+      - DB_USER=devuser
+      - DB_PASS=changeme
+    depends_on:
+      - db
+
+  db:
+    image: postgres:13-alpine
+    volumes:
+      - dev-db-data:/var/lib/postgresql/data
+    environment:
+      - POSTGRES_DB=devdb
+      - POSTGRES_USER=devuser
+      - POSTGRES_PASSWORD=changeme
+
+volumes:
+  dev-db-data:
